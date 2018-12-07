@@ -4,6 +4,8 @@ import os
 import glob
 import re
 import cv2
+from time import time
+from tensorflow.keras.callbacks import TensorBoard
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
@@ -94,9 +96,11 @@ model.compile(optimizer = tf.keras.optimizers.SGD(lr = 0.03,momentum = 0.1),
     metrics=[tf.keras.metrics.binary_accuracy,tf.keras.metrics.mae]
 )
 
+tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
 
-history = model.fit(trainX,trainY,epochs=100,batch_size = 40,validation_data=(testX,testY))
+
+history = model.fit(trainX,trainY,epochs=50,batch_size = 40,validation_data=(testX,testY),callbacks = [tensorboard])
 test_loss, test_acc, test_mae = model.evaluate(dataset, label)
 print('Test accuracy:', test_acc)
 print('Test loss:', test_loss)
