@@ -8,6 +8,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator,img_to_array
 import numpy as np
 
 
+
+
+
 def natural_key(string_):
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_)]
 
@@ -45,6 +48,7 @@ for path in elses_paths:
 dataset = np.array(dataset, dtype="float") / 255.0
 label = np.array(label, dtype = 'int')
 
-model = tf.keras.models.load_model('overfitted-90percenttrainacc-FCL.h5')
-score = model.evaluate(dataset,label)
-print("score = ",score)
+model = tf.keras.models.load_model('savedmodel/high.h5')
+
+print(model.metrics_names)
+print(model.evaluate(dataset,label))

@@ -18,22 +18,22 @@ from tensorflow.keras.callbacks import ModelCheckpoint,EarlyStopping
 def createModel(inputshape):
     model = Sequential()
     model.add(Conv2D(32, (3, 3), padding='same', activation='relu', input_shape=inputshape))
-    model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(Conv2D(32, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
  
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
  
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
@@ -45,6 +45,21 @@ def createModel(inputshape):
     return model
 
 
+
+
+
+
+config = tf.ConfigProto(intra_op_parallelism_threads=4, inter_op_parallelism_threads=2, allow_soft_placement=True, device_count = {'CPU': 4})
+
+session = tf.Session(config=config)
+
+os.environ["OMP_NUM_THREADS"] = "4"
+
+os.environ["KMP_BLOCKTIME"] = "30"
+
+os.environ["KMP_SETTINGS"] = "1"
+
+os.environ["KMP_AFFINITY"]= "granularity=fine,verbose,compact,1,0"
 
 
 
@@ -92,19 +107,19 @@ dataset,label = shuffle(dataset,label)
 
 model = createModel(shape)
 model.compile(optimizer = tf.keras.optimizers.SGD(lr = 0.03,momentum = 0.1), 
-    loss='binary_crossentropy',
+    loss=tf.keras.losses.binary_crossentropy,
     metrics=[tf.keras.metrics.binary_accuracy,tf.keras.metrics.mae]
 )
 
 tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
+cb = [tensorboard,tf.keras.callbacks.ModelCheckpoint('./savedmodel/model{epoch:04d}-{val_binary_accuracy:.4f}.h5', monitor='val_binary_accuracy', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)]
 
-
-history = model.fit(trainX,trainY,epochs=50,batch_size = 40,validation_data=(testX,testY),callbacks = [tensorboard])
+history = model.fit(trainX,trainY,epochs = 200,batch_size = 30,validation_data=(testX,testY),callbacks = cb)
 test_loss, test_acc, test_mae = model.evaluate(dataset, label)
 print('Test accuracy:', test_acc)
 print('Test loss:', test_loss)
-model.save('model.h5')
+model.save('newmodel.h5')
 
 fig = plt.figure(figsize=[8,6])
 
@@ -125,3 +140,8 @@ ax2.set_ylabel('Accuracy',fontsize=16)
 ax2.set_title('Accuracy Curves',fontsize=16)
 plt.tight_layout()
 plt.show()
+
+model = tf.keras.models.load_model(sorted(glob.glob(os.path.join('./savedmodel/', '*.h5')), key = natural_key,reverse = True)[0])
+
+print(model.metrics_names)
+print(model.evaluate(dataset,label))
