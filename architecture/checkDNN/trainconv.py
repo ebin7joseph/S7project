@@ -74,8 +74,8 @@ else_path = 'training_data_prepped/prepped-else'
 tyre_paths = sorted(glob.glob(os.path.join(tyre_path, '*.jpg')), key=natural_key)
 elses_paths = sorted(glob.glob(os.path.join(else_path, '*.jpg')), key=natural_key) 
 classnames = ['nontyre','tyre']
-width = 90
-height = 210
+width = 120
+height = 280
 shape = (height,width,3)
 dataset = []
 label = []
@@ -115,7 +115,7 @@ tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
 cb = [tensorboard,tf.keras.callbacks.ModelCheckpoint('./savedmodel/model{epoch:04d}-{val_binary_accuracy:.4f}.h5', monitor='val_binary_accuracy', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)]
 
-history = model.fit(trainX,trainY,epochs = 200,batch_size = 30,validation_data=(testX,testY),callbacks = cb)
+history = model.fit(trainX,trainY,epochs = 200,batch_size = 9,validation_data=(testX,testY),callbacks = cb)
 test_loss, test_acc, test_mae = model.evaluate(dataset, label)
 print('Test accuracy:', test_acc)
 print('Test loss:', test_loss)
@@ -140,8 +140,3 @@ ax2.set_ylabel('Accuracy',fontsize=16)
 ax2.set_title('Accuracy Curves',fontsize=16)
 plt.tight_layout()
 plt.show()
-
-model = tf.keras.models.load_model(sorted(glob.glob(os.path.join('./savedmodel/', '*.h5')), key = natural_key,reverse = True)[0])
-
-print(model.metrics_names)
-print(model.evaluate(dataset,label))
