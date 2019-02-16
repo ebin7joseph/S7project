@@ -49,17 +49,6 @@ def createModel(inputshape):
 
 
 
-config = tf.ConfigProto(intra_op_parallelism_threads=4, inter_op_parallelism_threads=2, allow_soft_placement=True, device_count = {'CPU': 4})
-
-session = tf.Session(config=config)
-
-os.environ["OMP_NUM_THREADS"] = "4"
-
-os.environ["KMP_BLOCKTIME"] = "30"
-
-os.environ["KMP_SETTINGS"] = "1"
-
-os.environ["KMP_AFFINITY"]= "granularity=fine,verbose,compact,1,0"
 
 
 
@@ -115,7 +104,7 @@ tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
 cb = [tensorboard,tf.keras.callbacks.ModelCheckpoint('./savedmodel/model{epoch:04d}-{val_binary_accuracy:.4f}.h5', monitor='val_binary_accuracy', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)]
 
-history = model.fit(trainX,trainY,epochs = 200,batch_size = 9,validation_data=(testX,testY),callbacks = cb)
+history = model.fit(trainX,trainY,epochs = 200,batch_size = 100,validation_data=(testX,testY),callbacks = cb)
 test_loss, test_acc, test_mae = model.evaluate(dataset, label)
 print('Test accuracy:', test_acc)
 print('Test loss:', test_loss)
