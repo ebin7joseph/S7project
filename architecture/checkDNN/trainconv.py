@@ -32,6 +32,12 @@ def createModel(inputshape):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
+
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -63,8 +69,8 @@ else_path = 'training_data_prepped/prepped-else'
 tyre_paths = sorted(glob.glob(os.path.join(tyre_path, '*.jpg')), key=natural_key)
 elses_paths = sorted(glob.glob(os.path.join(else_path, '*.jpg')), key=natural_key) 
 classnames = ['nontyre','tyre']
-width = 120
-height = 280
+width = 240
+height = 560
 shape = (height,width,3)
 dataset = []
 label = []
@@ -95,7 +101,7 @@ dataset,label = shuffle(dataset,label)
 (trainX, testX, trainY, testY) = train_test_split(dataset,label)
 
 model = createModel(shape)
-model.compile(optimizer = tf.keras.optimizers.SGD(lr = 0.03,momentum = 0.1), 
+model.compile(optimizer = tf.keras.optimizers.SGD(lr = 0.01,momentum = 0.1), 
     loss=tf.keras.losses.binary_crossentropy,
     metrics=[tf.keras.metrics.binary_accuracy,tf.keras.metrics.mae]
 )
@@ -104,7 +110,7 @@ tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
 cb = [tensorboard,tf.keras.callbacks.ModelCheckpoint('./savedmodel/model{epoch:04d}-{val_binary_accuracy:.4f}.h5', monitor='val_binary_accuracy', verbose=0, save_best_only=True, save_weights_only=False, mode='auto', period=1)]
 
-history = model.fit(trainX,trainY,epochs = 200,batch_size = 100,validation_data=(testX,testY),callbacks = cb)
+history = model.fit(trainX,trainY,epochs = 200,batch_size = 20,validation_data=(testX,testY),callbacks = cb)
 test_loss, test_acc, test_mae = model.evaluate(dataset, label)
 print('Test accuracy:', test_acc)
 print('Test loss:', test_loss)
