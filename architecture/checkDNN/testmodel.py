@@ -20,8 +20,8 @@ else_path = 'training_data_prepped/prepped-else'
 tyre_paths = sorted(glob.glob(os.path.join(tyre_path, '*.jpg')), key=natural_key)
 elses_paths = sorted(glob.glob(os.path.join(else_path, '*.jpg')), key=natural_key) 
 classnames = ['nontyre','tyre']
-width = 120
-height = 280
+width = 90
+height = 210
 shape = (height,width,3)
 dataset = []
 label = []
@@ -48,7 +48,7 @@ for path in elses_paths:
 dataset = np.array(dataset, dtype="float") / 255.0
 label = np.array(label, dtype = 'int')
 
-model = tf.keras.models.load_model('savedmodel/model0019-0.9118.h5')
+model = tf.keras.models.load_model('savedmodel/high.h5')
 
 print(model.metrics_names)
 print(model.evaluate(dataset,label))
